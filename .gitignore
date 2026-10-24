@@ -1,0 +1,14 @@
+__pycache__/
+*.py[cod]
+.venv/
+.env
+.DS_Store
+/dist/
+/runs/
+*.egg-info/
+firmware/**/build/
+firmware/**/sdkconfig
+firmware/**/sdkconfig.old
+firmware/**/sdkconfig.defaults.local
+firmware/**/managed_components/
+firmware/**/dependencies.lock
