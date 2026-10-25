@@ -1,4 +1,4 @@
-# FlippyKB
+# Flipper2JB
 
 Flipper Zero and ESP32-S2 Wi-Fi dev board tools for preparing keyboard scripts,
 transferring files, and entering BASIC source into a USB-connected text editor.
@@ -12,17 +12,19 @@ Computer ── Wi-Fi / TCP ── ESP32-S2 board ── Expansion UART ── F
 ```
 
 The toolkit includes a BASIC-to-Bad-KB converter, verified Wi-Fi uploads, remote
-script start, a USB serial upload fallback, and Flipper display capture. Python
+script start, a USB serial upload fallback, and Flipper display capture. An
+optional [SmileBASIC/ns2jb target](targets/ns2jb/README.md) adds bootstrap text
+preparation and fresh host-command delivery, following the mac2jb workflow. Python
 **3.10+** and its standard library are sufficient for the host tools.
 
 ## Start with a fresh checkout
 
 ```sh
-git clone --branch generic-only --single-branch https://github.com/dougchansan/flippykb.git
-cd flippykb
+git clone --branch flipper2jb --single-branch https://github.com/dougchansan/flipper2jb.git
+cd flipper2jb
 python3 -m unittest discover -s tests -v
-python3 -m flippykb --help
-python3 -m flippykb compile examples/typing-test.bas -o dist/typing-test.txt
+python3 -m flipper2jb --help
+python3 -m flipper2jb compile examples/typing-test.bas -o dist/typing-test.txt
 ```
 
 These commands run offline, including a fragmented loopback transport test. They
@@ -34,7 +36,7 @@ when compiling another version.
 To convert your own file, such as `bootstrap.bas`:
 
 ```sh
-python3 -m flippykb compile /path/to/bootstrap.bas -o dist/bootstrap.txt
+python3 -m flipper2jb compile /path/to/bootstrap.bas -o dist/bootstrap.txt
 ```
 
 The source must contain printable ASCII with LF or CRLF line endings. The converter
@@ -67,9 +69,9 @@ Connect the computer to the board's existing private Wi-Fi AP. A working board
 needs no firmware change. The default endpoint is `192.168.4.1:8080`:
 
 ```sh
-python3 -m flippykb ping
-python3 -m flippykb inspect
-python3 -m flippykb upload dist/typing-test.txt
+python3 -m flipper2jb ping
+python3 -m flipper2jb inspect
+python3 -m flipper2jb upload dist/typing-test.txt
 ```
 
 `ping` checks a protobuf echo. `inspect` verifies the exact included keymap bytes
@@ -80,7 +82,7 @@ The `/ext/badusb/` directory must already exist on the Flipper.
 An explicit destination is also supported:
 
 ```sh
-python3 -m flippykb upload dist/typing-test.txt --remote /ext/badusb/TypingTest.txt
+python3 -m flipper2jb upload dist/typing-test.txt --remote /ext/badusb/TypingTest.txt
 ```
 
 An existing file at an explicit destination may be replaced. Omit `--remote` to
@@ -92,7 +94,7 @@ Open the intended empty editor buffer, check Caps Lock is off, and return the
 Flipper to its desktop. Then:
 
 ```sh
-python3 -m flippykb run dist/typing-test.txt --ready
+python3 -m flipper2jb run dist/typing-test.txt --ready
 ```
 
 `run` uploads and verifies the script, checks the keyboard configuration, and
@@ -104,14 +106,25 @@ The remote script stays on the Flipper until removed. After stopping and closing
 Bad KB, remove the exact path printed by the upload/run command:
 
 ```sh
-python3 -m flippykb remove /ext/badusb/FlippyKB-REPLACE-WITH-PRINTED-ID.txt
+python3 -m flipper2jb remove /ext/badusb/Flipper2JB-REPLACE-WITH-PRINTED-ID.txt
+```
+
+## Optional target scripts
+
+The [target guide](targets/ns2jb/README.md) documents bootstrap conversion,
+one-use session scripts, the current-host command file, and restart/latch handling.
+These commands are separate from general text entry and are never invoked by
+compilation, dependency setup or the offline tests.
+
+```sh
+python3 -m flipper2jb.targets.ns2jb --help
 ```
 
 ## Other tools
 
 | Command | Purpose |
 | --- | --- |
-| `python3 -m flippykb capture dist/flipper.pbm` | Capture the Flipper's display as a PBM image |
+| `python3 -m flipper2jb capture dist/flipper.pbm` | Capture the Flipper's display as a PBM image |
 | `python3 tools/upload_usb.py dist/typing-test.txt --device /dev/cu.usbmodemYOURFLIPPER --remote /ext/badusb/TypingTestUSB.txt` | macOS/Linux USB serial upload; exact readback, refuses existing destination, never starts typing |
 | `python3 tools/configure_bridge.py` | Generate private AP build settings offline |
 
@@ -122,7 +135,7 @@ firmware flashing, not this serial upload command.
 Global connection options go before the subcommand:
 
 ```sh
-python3 -m flippykb --host 192.168.4.1 --port 8080 inspect
+python3 -m flipper2jb --host 192.168.4.1 --port 8080 inspect
 ```
 
 `FLIPPER_WIFI_HOST` and `FLIPPER_WIFI_PORT` are also supported.

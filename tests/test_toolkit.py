@@ -6,9 +6,9 @@ from pathlib import Path
 import tempfile
 import unittest
 from unittest.mock import patch
-from flippykb.__main__ import main, remote_path
-from flippykb.keyboard import compile_bas, replay
-from flippykb.rpc import decode, vi
+from flipper2jb.__main__ import main, remote_path
+from flipper2jb.keyboard import compile_bas, replay
+from flipper2jb.rpc import decode, vi
 from test_transport import FakeRPC
 
 
@@ -32,7 +32,7 @@ class CompilerTests(unittest.TestCase):
         with tempfile.TemporaryDirectory() as directory:
             root = Path(directory); src = root/'source.bas'; src.write_text('END\n')
             out = root/'out.txt'
-            with patch('flippykb.__main__.RPC', side_effect=AssertionError('offline')):
+            with patch('flipper2jb.__main__.RPC', side_effect=AssertionError('offline')):
                 with contextlib.redirect_stdout(io.StringIO()): main(['compile', str(src), '-o', str(out)])
             manifest = json.loads(Path(str(out)+'.json').read_text())
             self.assertTrue(manifest['physical_key_roundtrip'])
@@ -57,7 +57,7 @@ class TransportTests(unittest.TestCase):
         with tempfile.TemporaryDirectory() as directory:
             script = Path(directory)/'script.txt'; script.write_bytes(b'REM test\n' * 100)
             rpc = FakeRPC(); rpc.close = lambda: None
-            with patch('flippykb.__main__.RPC', return_value=rpc):
+            with patch('flipper2jb.__main__.RPC', return_value=rpc):
                 with contextlib.redirect_stdout(io.StringIO()): main(['upload', str(script)])
             self.assertEqual(rpc.calls, [])
             self.assertEqual(rpc.data, script.read_bytes())
@@ -67,7 +67,7 @@ class TransportTests(unittest.TestCase):
             script = Path(directory)/'script.txt'; script.write_bytes(b'REM test\n')
             for rpc in [FakeRPC(corrupt=True), FakeRPC(fail=16)]:
                 rpc.close = lambda: None
-                with patch('flippykb.__main__.RPC', return_value=rpc):
+                with patch('flipper2jb.__main__.RPC', return_value=rpc):
                     with contextlib.redirect_stdout(io.StringIO()):
                         with self.assertRaises(RuntimeError): main(['run', str(script), '--ready'])
                 self.assertLessEqual(rpc.calls.count(16), 1)

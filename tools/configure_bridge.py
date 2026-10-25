@@ -7,7 +7,7 @@ from pathlib import Path
 import secrets
 
 parser = argparse.ArgumentParser()
-parser.add_argument('--ssid', default='FlippyKB')
+parser.add_argument('--ssid', default='Flipper2JB')
 args = parser.parse_args()
 if not 1 <= len(args.ssid.encode()) <= 32 or any(ord(c) < 32 for c in args.ssid):
     parser.error('SSID must be 1..32 bytes without control characters')

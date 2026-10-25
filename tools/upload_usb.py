@@ -11,7 +11,7 @@ import termios
 import time
 import tty
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
-from flippykb.__main__ import remote_path
+from flipper2jb.__main__ import remote_path
 
 
 def main():

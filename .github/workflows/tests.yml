@@ -13,4 +13,6 @@ jobs:
         with:
           python-version: ${{ matrix.python }}
       - run: python -m unittest discover -s tests -v
-      - run: python -m flippykb --help
+      - run: python -m flipper2jb --help
+      - run: python -m flipper2jb.targets.ns2jb --help
+      - run: python -m flipper2jb compile examples/typing-test.bas -o dist/typing-test.txt

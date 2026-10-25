@@ -76,7 +76,9 @@ def main(argv=None):
         data = args.script.read_bytes()
         if not data:
             raise ValueError('empty script')
-        remote = remote_path(args.remote or '/ext/badusb/FlippyKB-' + uuid.uuid4().hex + '.txt')
+        if args.action == 'run' and data.startswith(b'REM FLIPPER2JB TARGET NS2JB;'):
+            raise ValueError('use the target start command for guarded session delivery')
+        remote = remote_path(args.remote or '/ext/badusb/Flipper2JB-' + uuid.uuid4().hex + '.txt')
     elif args.action == 'remove':
         remote = remote_path(args.remote)
     elif args.action == 'capture' and args.output.exists():

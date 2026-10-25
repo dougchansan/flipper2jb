@@ -29,7 +29,7 @@ Use **ESP-IDF v5.4.2** with its ESP32-S2 toolchain, the version used locally.
 After installing that environment and sourcing its `export.sh`, from repo root:
 
 ```sh
-python3 tools/configure_bridge.py --ssid FlippyKB
+python3 tools/configure_bridge.py --ssid Flipper2JB
 cd firmware/tcp_uart_bridge
 idf.py -D 'SDKCONFIG_DEFAULTS=sdkconfig.defaults;sdkconfig.defaults.local' set-target esp32s2
 idf.py -D 'SDKCONFIG_DEFAULTS=sdkconfig.defaults;sdkconfig.defaults.local' build
@@ -57,8 +57,8 @@ backup or NVS image. No flashing is part of normal script compilation/upload.
 Join the new AP from the Mac; its default gateway is 192.168.4.1. From repo root:
 
 ```sh
-python3 -m flippykb ping
-python3 -m flippykb inspect
+python3 -m flipper2jb ping
+python3 -m flipper2jb inspect
 ```
 
 Only trusted devices should join this AP: protobuf TCP has no additional

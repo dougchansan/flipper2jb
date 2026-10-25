@@ -7,10 +7,10 @@ import tempfile
 import threading
 import unittest
 from unittest.mock import patch
-from flippykb.__main__ import main
-from flippykb.keyboard import compile_bas, LAYOUT
-from flippykb.rpc import RPC, blob, decode, first, integer, vi
-from flippykb.transfer import upload
+from flipper2jb.__main__ import main
+from flipper2jb.keyboard import compile_bas, LAYOUT
+from flipper2jb.rpc import RPC, blob, decode, first, integer, vi
+from flipper2jb.transfer import upload
 
 
 class FakeSocket:
@@ -86,7 +86,7 @@ class StorageTests(unittest.TestCase):
                              b'layout: /ext/en-UK.kl\ninterface: 1\n']:
                 rpc = FakeRPC()
                 rpc.read = lambda path: settings if path.endswith('.settings') else LAYOUT.read_bytes()
-                with patch('flippykb.__main__.RPC', return_value=rpc):
+                with patch('flipper2jb.__main__.RPC', return_value=rpc):
                     with self.assertRaises(ValueError): main(['run', str(script), '--ready'])
                 self.assertFalse(rpc.more)
                 self.assertFalse(rpc.calls)
@@ -144,10 +144,10 @@ class SocketIntegration(unittest.TestCase):
         thread = threading.Thread(target=serve, daemon=True); thread.start()
         with tempfile.TemporaryDirectory() as directory:
             root = Path(directory); script = root/'test.txt'
-            data, _, _ = compile_bas('PRINT "FlippyKB"\nEND\n')
+            data, _, _ = compile_bas('PRINT "Flipper2JB"\nEND\n')
             script.write_bytes(data)
             args = ['--host', address[0], '--port', str(address[1])]
-            with contextlib.redirect_stdout(io.StringIO()), patch('flippykb.__main__.time.sleep'):
+            with contextlib.redirect_stdout(io.StringIO()), patch('flipper2jb.__main__.time.sleep'):
                 main(args + ['ping'])
                 main(args + ['inspect'])
                 main(args + ['upload', str(script), '--remote', '/ext/badusb/upload.txt'])
