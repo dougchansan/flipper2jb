@@ -18,9 +18,10 @@ output and dummy build credentials. Application size was 0xcd830 bytes, with 20%
 free in the 1 MiB partition. Firmware compilation does not establish a physical
 bridge handshake.
 
-The release preparation performs no real AP connection, USB serial
-operation, keyboard input or firmware flash. Remote-start and USB-serial commands
-still need validation on the intended hardware/editor. The target editor must
+The automated tests perform no real AP connection, USB serial operation, keyboard
+input or firmware flash. A subsequent supervised short BLE/USB typing and
+auto-close test passed; see [hardware evidence](HARDWARE-TEST.md). The USB-serial
+uploader and full target-session workflow still need physical validation. The target editor must
 support the documented auto-indent clearing shortcuts. A replay result or RPC
 acknowledgment does not prove successful USB text delivery.
 
@@ -47,8 +48,9 @@ fragmented protobuf replies, explicit/ambiguous device selection, dependency err
 connection cleanup, bounded buffering, no retry after a lost start acknowledgment,
 and target-latch retention on a BLE failure. All 39 tests pass on Python 3.14 and
 in an isolated Python 3.12 environment with Bleak 3.0.2 installed. The Bleak client
-and scanner imports succeed on macOS. No scan, pairing or hardware access occurred.
-Physical Bluetooth transfer and USB keyboard operation remain unverified.
+and scanner imports succeed on macOS. Initial implementation used no hardware;
+the subsequent supervised [hardware test](HARDWARE-TEST.md) passed physical BLE
+transfer, short USB text entry, and timed closing. Long-file transfer is unverified.
 
 ## Timed auto-close
 
@@ -63,6 +65,7 @@ The firmware's Bad KB worker does not publish a script-completion event through
 its ordinary RPC launch interface. Auto-close uses explicit DELAY totals plus
 25% (minimum 10 seconds), then one Back press and a loader-lock status check.
 It cannot detect a pause/stall that leaves the screen header unchanged. A timer
-expiring is not proof of successful text delivery. No physical auto-close was
-attempted. Source review used Momentum revision
+expiring is not proof of successful text delivery. A subsequent supervised
+short-script test confirmed physical auto-close and user-observed text delivery;
+see [hardware evidence](HARDWARE-TEST.md). Source review used Momentum revision
 `d3f89dfe2ef6b01839201598e9be1590cba80322` (Bad KB view/worker and GUI navigation).

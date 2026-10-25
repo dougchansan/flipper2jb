@@ -126,7 +126,8 @@ Implementation references:
 - [Flipper serial service and flow control](https://github.com/flipperdevices/flipperzero-firmware/blob/dev/targets/f7/ble_glue/services/serial_service.c)
 - [Bleak client and pairing API](https://bleak.readthedocs.io/en/latest/api/client.html)
 
-The transport is tested against simulated GATT peers and dependency imports.
-Physical pairing, file transfer and concurrent BLE control/USB Bad KB operation
-still require a hardware test. No such device operation was performed during
-implementation.
+The transport has simulated GATT coverage and a supervised
+[hardware test](HARDWARE-TEST.md) that passed pairing, protobuf RPC, exact upload
+readback, short USB keyboard text entry at 50 ms, and timed Bad KB closing.
+The user confirmed the entered text and automatic close. Full bootstrap transfers
+and the optional target-session sequence remain unverified on BLE.

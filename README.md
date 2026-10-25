@@ -73,8 +73,9 @@ Use the identifier from the scan (an OS UUID on macOS). Confirm the Flipper's
 pairing code when prompted and allow Bluetooth access for your terminal.
 Subsequent commands use BLE with these environment variables set. The Flipper
 remains a **USB** keyboard to the target. See the [Bluetooth guide](docs/BLUETOOTH.md)
-for explicit flags, pairing, target scripts and verification limits. Physical BLE
-operation has not yet been verified on this hardware.
+for explicit flags, pairing, target scripts and verification limits. A supervised
+[hardware test](docs/HARDWARE-TEST.md) passed short BLE transfer, 50 ms USB typing
+and timed auto-close; full bootstrap and target-session runs remain unverified.
 
 ## Wi-Fi connection (optional board)
 
