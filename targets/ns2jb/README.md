@@ -29,8 +29,9 @@ Observe the result and save the reviewed source as `NS2` in slot 0 yourself.
 
 **Keyboard difference:** mac2jb's native USB sender uses a US layout; this adapter
 retains the tested **en-UK** Flipper layout and USB interface. Configure the target
-keyboard language consistently and run the four-line typing trial first. Do not
-copy mac2jb's layout instructions blindly onto this Flipper path.
+keyboard language consistently. Character hold/release and Shift settling default
+to **50 ms**, with **100 ms** navigation. No timing option is needed. Do not copy
+mac2jb's layout instructions blindly onto this Flipper path.
 
 The reference mac2jb revision is
 `68eb95f0bacc2d4940a2ea44c6a6153b040d5401`. Its `assets/bootstrap.bas` hash is

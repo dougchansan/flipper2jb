@@ -22,22 +22,13 @@ preparation and fresh host-command delivery, following the mac2jb workflow. Pyth
 ```sh
 git clone --branch flipper2jb --single-branch https://github.com/dougchansan/flipper2jb.git
 cd flipper2jb
-python3 -m unittest discover -s tests -v
-python3 -m flipper2jb --help
-python3 -m flipper2jb compile examples/typing-test.bas -o dist/typing-test.txt
-```
-
-These commands run offline, including a fragmented loopback transport test. They
-create a keyboard script and a JSON manifest with hashes, timing, and an editor
-replay check. Generated files are private to the local user and `dist/` is ignored
-by Git. Output files are never silently overwritten; choose a new output filename
-when compiling another version.
-
-To convert your own file, such as `bootstrap.bas`:
-
-```sh
 python3 -m flipper2jb compile /path/to/bootstrap.bas -o dist/bootstrap.txt
 ```
+
+Compilation runs offline and creates a keyboard script and a JSON manifest with
+hashes, estimated duration, and an editor replay check. Generated files are private
+to the local user and `dist/` is ignored by Git. Output files are never silently
+overwritten; choose a new output filename when compiling another version.
 
 The source must contain printable ASCII with LF or CRLF line endings. The converter
 preserves blank lines and indentation and adds a final newline when needed. It
@@ -52,16 +43,13 @@ the Flipper; the Flipper's USB connects to the target device.
 
 The generated sequence assumes an empty editor with the cursor at the beginning.
 After each Enter, it uses Home, Shift+End, Space and Backspace to clear inherited
-auto-indentation. The target must support these shortcuts as expected. Start with
-the bundled four-line typing test in a disposable editor buffer and compare the
-result, including spacing, punctuation and case, before sending a larger file.
+auto-indentation. The target must support these shortcuts as expected.
 An offline replay check verifies the sequence's editor model; it does not establish
 compatibility with every editor or prove physical key delivery.
 
 Default character hold/release and Shift settling are **50 ms**; navigation uses
-**100 ms**. `--key-ms` accepts 20..250. Slower timing can help with dropped or
-repeated characters; a short fast trial does not prove long-file reliability.
-The manifest reports the estimated typing duration.
+**100 ms**. No timing option is needed. The manifest reports the estimated typing
+duration.
 
 ## Connect and upload
 
@@ -71,7 +59,7 @@ needs no firmware change. The default endpoint is `192.168.4.1:8080`:
 ```sh
 python3 -m flipper2jb ping
 python3 -m flipper2jb inspect
-python3 -m flipper2jb upload dist/typing-test.txt
+python3 -m flipper2jb upload dist/bootstrap.txt
 ```
 
 `ping` checks a protobuf echo. `inspect` verifies the exact included keymap bytes
@@ -82,19 +70,19 @@ The `/ext/badusb/` directory must already exist on the Flipper.
 An explicit destination is also supported:
 
 ```sh
-python3 -m flipper2jb upload dist/typing-test.txt --remote /ext/badusb/TypingTest.txt
+python3 -m flipper2jb upload dist/bootstrap.txt --remote /ext/badusb/Bootstrap.txt
 ```
 
 An existing file at an explicit destination may be replaced. Omit `--remote` to
 get a unique filename. Wi-Fi uploads use 512-byte protobuf storage records.
 
-## Start a typing test
+## Send the script
 
 Open the intended empty editor buffer, check Caps Lock is off, and return the
 Flipper to its desktop. Then:
 
 ```sh
-python3 -m flipper2jb run dist/typing-test.txt --ready
+python3 -m flipper2jb run dist/bootstrap.txt --ready
 ```
 
 `run` uploads and verifies the script, checks the keyboard configuration, and
@@ -125,7 +113,7 @@ python3 -m flipper2jb.targets.ns2jb --help
 | Command | Purpose |
 | --- | --- |
 | `python3 -m flipper2jb capture dist/flipper.pbm` | Capture the Flipper's display as a PBM image |
-| `python3 tools/upload_usb.py dist/typing-test.txt --device /dev/cu.usbmodemYOURFLIPPER --remote /ext/badusb/TypingTestUSB.txt` | macOS/Linux USB serial upload; exact readback, refuses existing destination, never starts typing |
+| `python3 tools/upload_usb.py dist/bootstrap.txt --device /dev/cu.usbmodemYOURFLIPPER --remote /ext/badusb/BootstrapUSB.txt` | macOS/Linux USB serial upload; exact readback, refuses existing destination, never starts typing |
 | `python3 tools/configure_bridge.py` | Generate private AP build settings offline |
 
 Use the Flipper's USB serial device for the fallback uploader, then reconnect its

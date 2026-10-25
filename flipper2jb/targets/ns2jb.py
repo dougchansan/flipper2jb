@@ -101,12 +101,12 @@ def main(argv=None):
     sub = parser.add_subparsers(dest='action', required=True)
     p = sub.add_parser('bootstrap', help='compile caller-supplied bootstrap.bas; offline')
     p.add_argument('source', type=Path); p.add_argument('-o', '--output', type=Path, required=True)
-    p.add_argument('--key-ms', type=int, default=50)
+    p.add_argument('--key-ms', type=int, default=50, help='character timing in ms (default: 50)')
     for action, help_text in [('session', 'prepare a private one-use script from a live host record'),
                               ('start', 'generate and send a fresh session sequence once')]:
         p = sub.add_parser(action, help=help_text)
         p.add_argument('--active-file', type=Path, required=True)
-        p.add_argument('--name', default='NS2'); p.add_argument('--key-ms', type=int, default=50)
+        p.add_argument('--name', default='NS2'); p.add_argument('--key-ms', type=int, default=50, help='character timing in ms (default: 50)')
         if action == 'session': p.add_argument('-o', '--output', type=Path, required=True)
         else: p.add_argument('--ready', action='store_true', required=True,
                             help='confirm fresh console process, Direct mode, saved NS2, Caps Lock off, Flipper desktop')

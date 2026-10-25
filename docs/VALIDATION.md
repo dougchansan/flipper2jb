@@ -8,8 +8,8 @@ exercise storage transfer, exact readback, launch failures without automatic
 retry, text indentation, blank lines, punctuation, timing bounds, generated file
 permissions, malformed protobuf, and remote path containment.
 
-The documented fresh-checkout workflow uses only the bundled typing example and
-caller-supplied printable-ASCII BASIC. It requires Python 3.10+ and no third-party
+The documented fresh-checkout workflow uses caller-supplied printable-ASCII BASIC
+with a default character timing of 50 ms. It requires Python 3.10+ and no third-party
 Python packages. CI is configured for Python 3.10 and 3.14 on Linux and macOS;
 configured jobs are not evidence that every platform has passed remotely.
 

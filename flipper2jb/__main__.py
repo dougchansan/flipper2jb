@@ -45,7 +45,7 @@ def main(argv=None):
     sub = parser.add_subparsers(dest='action', required=True)
     p = sub.add_parser('compile', help='BAS → Bad KB script; offline')
     p.add_argument('source', type=Path); p.add_argument('-o', '--output', required=True, type=Path)
-    p.add_argument('--key-ms', type=int, default=50)
+    p.add_argument('--key-ms', type=int, default=50, help='character timing in ms (default: 50)')
     sub.add_parser('ping', help='check protobuf echo on the existing bridge')
     sub.add_parser('inspect', help='verify keyboard layout and USB interface')
     p = sub.add_parser('capture', help='capture the Flipper display')
