@@ -81,8 +81,12 @@ python -m flipper2jb capture dist/flipper.pbm
 python -m flipper2jb remove /ext/badusb/Flipper2JB-REPLACE-WITH-PRINTED-ID.txt
 ```
 
-Close Bad KB before removing its file. An acknowledgment confirms request
-acceptance, not physical text delivery. Observe the target to verify completion.
+Generated scripts auto-close Bad KB after the script duration plus a 25% buffer
+(minimum 10 seconds); keep the command connected until exit verification finishes.
+`--keep-open` disables this. If the script is paused or stalled, the timer can
+interrupt it. A changed screen header or communication failure cancels auto-close.
+After exit is verified, its remote file can be removed; otherwise close it manually
+before removal. An acknowledgment confirms request acceptance, not physical text delivery. Observe the target to verify completion.
 There is no automatic reconnect or launch retry after an uncertain BLE failure.
 
 ## Optional target adapter

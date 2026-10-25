@@ -23,6 +23,7 @@ class FakeBackend:
         self.files, self.tags, self.clients = {}, [], []
         self.failure = None
         self.connect_failure = False
+        self.locked = False
         self.devices = {'one': (DEVICE, ADVERTISEMENT)}
 
     async def discover(self, **kwargs): return self.devices
@@ -96,10 +97,18 @@ class FakeClient:
                 elif path.endswith('.kl'): data = LAYOUT.read_bytes()
                 else: data = self.backend.files[path]
                 body = blob(10,blob(1,blob(4,data)))
+            elif tag == 16:
+                self.backend.locked = True; body = blob(4,b'')
+            elif tag == 17:
+                body = blob(18,integer(1,int(self.backend.locked)))
+            elif tag == 23:
+                if first(query,1)==5 and first(query,2)==2: self.backend.locked=False
+                body = blob(4,b'')
             elif tag == 12:
                 del self.backend.files[first(query,1).decode()]; body = blob(4,b'')
             else: body = blob(4,b'')
             self.respond(ident,body)
+            if tag == 20: self.respond(0,blob(22,blob(1,bytes([0xff])*1024)))
 
 
 class BleCommandTests(unittest.TestCase):

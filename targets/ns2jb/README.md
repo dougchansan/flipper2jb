@@ -89,6 +89,13 @@ The adapter validates all nine numeric START parameters, checks the recorded hos
 PID, verifies that the active record has not changed before upload, checks the
 Flipper layout, and consumes a durable one-shot latch before sending. It verifies
 exact storage readback, starts Bad KB once, and never retries automatically.
+
+`start` now keeps the connection open and auto-closes Bad KB after the generated
+sequence's duration plus a 25% buffer (minimum 10 seconds), verifying application
+exit afterward. Use `--keep-open` to disable this. Closing is timed, not proof of
+script completion, authentication or runtime acquisition; paused or stalled scripts
+can be interrupted. Do not interact with Bad KB during the wait. A changed screen
+header or connection failure cancels closing without additional Back input.
 It does not print the pairing values. Only the host's authenticated connection
 and subsequent results establish that the sequence worked; RPC acknowledgments
 and elapsed time do not establish console execution or runtime acquisition.
@@ -105,8 +112,8 @@ python3 -m flipper2jb.targets.ns2jb reset --confirm-console-restarted
 
 Reset refuses while the recorded sender or host PID is live. The latch cannot
 prevent manually replaying a remote file or other software ignoring the latch.
-Close Bad KB before deleting the unique remote script printed by `start` using
-the general `remove` command. Do not replay a remaining session script.
+After auto-close verifies exit, delete the unique remote script printed by `start`
+using the general `remove` command. With `--keep-open`, close Bad KB yourself first. Do not replay a remaining session script.
 
 ## Attribution and validation
 

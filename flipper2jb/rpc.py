@@ -68,13 +68,16 @@ class RPC:
    if not first(d,3):return out
  def read(self,path):
   return b''.join(first(decode(first(decode(first(d,10)),1)),4,b'') for d in self.request(9,blob(1,path)))
- def capture(self,path):
+ def screen_frame(self):
   self.screen=None;self.request(20)
   end=time.monotonic()+4
   while self.screen is None and time.monotonic()<end:self.receive()
   self.request(21)
   b=self.screen
   if b is None or len(b)!=1024:raise ValueError('screen bytes '+str(None if b is None else len(b)))
+  return b
+ def capture(self,path):
+  b=self.screen_frame()
   pixels=bytearray(1024)
   for y in range(64):
    for x in range(128):

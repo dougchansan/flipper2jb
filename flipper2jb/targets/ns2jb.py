@@ -10,6 +10,7 @@ import sys
 import time
 import uuid
 from ..ble import BluetoothError
+from .. import autoclose
 from ..__main__ import private_write, verify_layout
 from ..keyboard import compile_bas, LAYOUT
 from ..rpc import RPC, blob, integer
@@ -109,8 +110,10 @@ def main(argv=None):
         p.add_argument('--active-file', type=Path, required=True)
         p.add_argument('--name', default='NS2'); p.add_argument('--key-ms', type=int, default=50, help='character timing in ms (default: 50)')
         if action == 'session': p.add_argument('-o', '--output', type=Path, required=True)
-        else: p.add_argument('--ready', action='store_true', required=True,
-                            help='confirm fresh console process, Direct mode, saved NS2, Caps Lock off, Flipper desktop')
+        else:
+            p.add_argument('--ready', action='store_true', required=True,
+                           help='confirm fresh console process, Direct mode, saved NS2, Caps Lock off, Flipper desktop')
+            p.add_argument('--keep-open', action='store_true', help='disable timed auto-close after sending the sequence')
     p = sub.add_parser('reset', help='rearm only after stopping hosts/Bad KB and restarting console')
     p.add_argument('--confirm-console-restarted', action='store_true', required=True)
     args = parser.parse_args(argv)
@@ -137,17 +140,22 @@ def main(argv=None):
             raise ValueError('active host changed')
         # Consume before upload/start; a failed or uncertain attempt is never rearmed here.
         claim(pid)
-        remote = '/ext/badusb/Flipper2JB-NS2-'+uuid.uuid4().hex+'.txt'
+        remote = '/ext/badusb/F2S-'+uuid.uuid4().hex[:12]+'.txt'
         upload(rpc, remote, data)
         print('Fresh script exact readback verified:', remote)
         if active_command(args.active_file) != (pid, command):
             raise ValueError('active host changed during upload')
         rpc.request(16, blob(1, 'Bad KB')+blob(2, remote))
         time.sleep(2)
+        screen_header = autoclose.prepare(rpc) if not args.keep_open else None
         for typ in (0, 2, 1): rpc.request(23, integer(1, 4)+integer(2, typ))
         print('Fresh script readback and start input acknowledged:', remote)
         print(f'Estimated typing interval: {seconds:.1f} seconds. Only the host can confirm authentication.')
-        print('Close Bad KB before deleting the script. Never replay it. No automatic retry.')
+        if not args.keep_open:
+            autoclose.wait_and_close(rpc,seconds,screen_header)
+        else:
+            print('Close Bad KB before deleting the script.')
+        print('Never replay the script. No automatic retry. The session latch remains consumed.')
     return with_connection(args, operation, RPC)
 
 

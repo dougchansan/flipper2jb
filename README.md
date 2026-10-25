@@ -116,11 +116,23 @@ sends one Bad KB start input. Typing begins after the script's five-second delay
 Observe the target editor: a Flipper acknowledgment confirms request acceptance,
 not completed USB delivery. There are no automatic launch retries.
 
-The remote script stays on the Flipper until removed. After stopping and closing
-Bad KB, remove the exact path printed by the upload/run command:
+**Auto-close is on by default for Flipper2JB-generated scripts.** Keep the command
+running: it waits for the scripted duration plus a 25% buffer (at least 10 seconds),
+then sends Back once and verifies that the Flipper application exited. It checks
+the screen header during the wait and cancels closing if that header changes or
+communication fails. This is a timer, not a completion signal: a paused or stalled
+script can still be interrupted. Avoid interacting with Bad KB during the wait.
+
+Use `--keep-open` to disable closing. Custom scripts keep manual closing; explicit
+`--auto-close` only accepts this project's bounded generated key sequences. Pressing
+Ctrl+C cancels the waiting command without sending Back. This feature works with
+Wi-Fi and BLE; it does not reset the target session latch or delete the remote file.
+
+After auto-close reports the app exited (or after manually closing Bad KB), remove
+the exact path printed by the upload/run command:
 
 ```sh
-python3 -m flipper2jb remove /ext/badusb/Flipper2JB-REPLACE-WITH-PRINTED-ID.txt
+python3 -m flipper2jb remove /ext/badusb/F2-REPLACE-WITH-PRINTED-ID.txt
 ```
 
 ## Optional target scripts

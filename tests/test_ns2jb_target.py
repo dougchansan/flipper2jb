@@ -88,7 +88,7 @@ class TargetTests(unittest.TestCase):
             root = Path(directory); active = root/'active.txt'; latch = root/'latch.json'
             active.write_text(f'{os.getpid()}\n{COMMAND}\n')
             rpc = FakeRPC(fail=16)
-            args = ['start','--active-file',str(active),'--ready']
+            args = ['start','--active-file',str(active),'--ready','--keep-open']
             with patch.dict(os.environ,{'HB_SESSION_LATCH':str(latch)}), patch.object(ns2jb,'RPC',return_value=rpc), contextlib.redirect_stdout(io.StringIO()) as log:
                 with self.assertRaises(RuntimeError): ns2jb.main(args)
                 self.assertTrue(latch.exists())
@@ -103,7 +103,7 @@ class TargetTests(unittest.TestCase):
             latch = Path(directory)/'latch.json'; rpc = FakeRPC()
             states = [(os.getpid(),COMMAND),(os.getpid(),COMMAND),(os.getpid(),COMMAND.replace('44','45'))]
             with patch.dict(os.environ,{'HB_SESSION_LATCH':str(latch)}), patch.object(ns2jb,'RPC',return_value=rpc), patch.object(ns2jb,'active_command',side_effect=states), contextlib.redirect_stdout(io.StringIO()):
-                with self.assertRaises(ValueError): ns2jb.main(['start','--active-file','synthetic','--ready'])
+                with self.assertRaises(ValueError): ns2jb.main(['start','--active-file','synthetic','--ready','--keep-open'])
             self.assertTrue(latch.exists()); self.assertEqual(rpc.calls,[])
 
     def test_successful_start_sends_one_start_and_input_sequence(self):
@@ -111,7 +111,7 @@ class TargetTests(unittest.TestCase):
             root = Path(directory); active = root/'active.txt'; latch = root/'latch.json'
             active.write_text(f'{os.getpid()}\n{COMMAND}\n'); rpc = FakeRPC()
             with patch.dict(os.environ,{'HB_SESSION_LATCH':str(latch)}), patch.object(ns2jb,'RPC',return_value=rpc), patch.object(ns2jb.time,'sleep'), contextlib.redirect_stdout(io.StringIO()):
-                ns2jb.main(['start','--active-file',str(active),'--ready'])
+                ns2jb.main(['start','--active-file',str(active),'--ready','--keep-open'])
             self.assertEqual(rpc.calls,[16,23,23,23]); self.assertTrue(latch.exists())
 
     def test_reset_requires_sender_and_host_stopped(self):

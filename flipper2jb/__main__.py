@@ -7,6 +7,7 @@ import sys
 import time
 import uuid
 from .ble import BluetoothError
+from . import autoclose
 from .keyboard import compile_bas, LAYOUT
 from .rpc import RPC, blob, integer, decode, first
 from .transfer import upload
@@ -58,6 +59,9 @@ def main(argv=None):
     p = sub.add_parser('run', help='upload, verify and start Bad KB once')
     p.add_argument('script', type=Path); p.add_argument('--remote')
     p.add_argument('--ready', required=True, action='store_true', help='confirm empty target editor, Caps Lock off, Flipper desktop')
+    closing = p.add_mutually_exclusive_group()
+    closing.add_argument('--auto-close', action='store_true', dest='auto_close', default=None, help='timed close after generated-script duration plus buffer (automatic for generated scripts)')
+    closing.add_argument('--keep-open', action='store_false', dest='auto_close', help='leave Bad KB open after starting')
     p = sub.add_parser('remove', help='remove one generated script after closing Bad KB')
     p.add_argument('remote')
     args = parser.parse_args(argv)
@@ -85,7 +89,9 @@ def main(argv=None):
             raise ValueError('empty script')
         if args.action == 'run' and data.startswith(b'REM FLIPPER2JB TARGET NS2JB;'):
             raise ValueError('use the target start command for guarded session delivery')
-        remote = remote_path(args.remote or '/ext/badusb/Flipper2JB-' + uuid.uuid4().hex + '.txt')
+        close_seconds = autoclose.enabled_duration(data,args.auto_close) if args.action=='run' else None
+        default_name = 'F2-'+uuid.uuid4().hex[:12] if close_seconds is not None else 'Flipper2JB-'+uuid.uuid4().hex
+        remote = remote_path(args.remote or '/ext/badusb/'+default_name+'.txt')
     elif args.action == 'remove':
         remote = remote_path(args.remote)
     elif args.action == 'capture' and args.output.exists():
@@ -115,10 +121,14 @@ def main(argv=None):
             if args.action == 'run':
                 rpc.request(16, blob(1, 'Bad KB') + blob(2, remote))
                 time.sleep(2)
+                screen_header = autoclose.prepare(rpc) if close_seconds is not None else None
                 for typ in (0, 2, 1):
                     rpc.request(23, integer(1, 4) + integer(2, typ))
                 print('Start input acknowledged. Observe the target editor; RPC does not prove typing completed.')
-                print('Close Bad KB before removing the remote script.')
+                if close_seconds is not None:
+                    autoclose.wait_and_close(rpc,close_seconds,screen_header)
+                else:
+                    print('Close Bad KB before removing the remote script.')
     return with_connection(args, operation, RPC)
 
 

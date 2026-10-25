@@ -106,6 +106,7 @@ class SocketIntegration(unittest.TestCase):
                 for _ in range(6):
                     conn, _ = listener.accept(); conn.settimeout(5)
                     reader = object.__new__(RPC); reader.s = conn
+                    locked = False
                     try:
                         while True:
                             try: request = reader.receive()
@@ -128,6 +129,12 @@ class SocketIntegration(unittest.TestCase):
                                 else: data = files[path]
                                 bodies = [blob(10, blob(1, blob(4, data[i:i+1024])))
                                           for i in range(0, len(data), 1024)]
+                            elif tag == 16:
+                                locked = True
+                            elif tag == 17:
+                                bodies = [blob(18,integer(1,int(locked)))]
+                            elif tag == 23 and first(query,1)==5 and first(query,2)==2:
+                                locked = False
                             elif tag == 12:
                                 del files[first(query, 1).decode()]
                             for i, body in enumerate(bodies):
@@ -162,7 +169,7 @@ class SocketIntegration(unittest.TestCase):
         self.assertFalse(thread.is_alive())
         self.assertFalse(errors, errors)
         self.assertEqual(seen.count(16), 1)
-        self.assertEqual(seen.count(23), 3)
+        self.assertEqual(seen.count(23), 6)
         self.assertNotIn('/ext/badusb/upload.txt', files)
 
 
