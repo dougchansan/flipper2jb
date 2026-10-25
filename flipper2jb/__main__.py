@@ -6,9 +6,11 @@ from pathlib import Path, PurePosixPath
 import sys
 import time
 import uuid
+from .ble import BluetoothError
 from .keyboard import compile_bas, LAYOUT
 from .rpc import RPC, blob, integer, decode, first
 from .transfer import upload
+from .transports import add_options, with_connection
 
 
 def private_write(path, data):
@@ -39,14 +41,15 @@ def verify_layout(rpc):
 
 
 def main(argv=None):
-    parser = argparse.ArgumentParser(description='Flipper Wi-Fi file transfer and USB keyboard scripting tools')
-    parser.add_argument('--host', default=os.environ.get('FLIPPER_WIFI_HOST', '192.168.4.1'))
-    parser.add_argument('--port', type=int, default=int(os.environ.get('FLIPPER_WIFI_PORT', '8080')))
+    parser = argparse.ArgumentParser(description='Flipper Wi-Fi/Bluetooth file transfer and USB keyboard scripting tools')
+    add_options(parser)
     sub = parser.add_subparsers(dest='action', required=True)
     p = sub.add_parser('compile', help='BAS → Bad KB script; offline')
     p.add_argument('source', type=Path); p.add_argument('-o', '--output', required=True, type=Path)
     p.add_argument('--key-ms', type=int, default=50, help='character timing in ms (default: 50)')
-    sub.add_parser('ping', help='check protobuf echo on the existing bridge')
+    p = sub.add_parser('ble-scan', help='list advertising Flippers over Bluetooth LE')
+    p.add_argument('--seconds', type=float, default=5)
+    sub.add_parser('ping', help='check Flipper protobuf echo')
     sub.add_parser('inspect', help='verify keyboard layout and USB interface')
     p = sub.add_parser('capture', help='capture the Flipper display')
     p.add_argument('output', type=Path)
@@ -70,6 +73,10 @@ def main(argv=None):
         print('Created', args.output)
         print(f"Estimated typing time: {seconds / 60:.1f} minutes")
         return
+    if args.action == 'ble-scan':
+        from .ble import print_scan
+        print_scan(args.seconds)
+        return
     # Validate inputs before opening any network connection.
     data = None
     if args.action in ('upload', 'run'):
@@ -83,14 +90,13 @@ def main(argv=None):
         remote = remote_path(args.remote)
     elif args.action == 'capture' and args.output.exists():
         raise ValueError('capture destination already exists')
-    rpc = RPC(args.host, args.port)
-    try:
+    def operation(rpc):
         if args.action == 'ping':
             token = os.urandom(16)
             replies = rpc.request(5, blob(1, token))
             if not any(first(decode(first(d, 6, b'')), 1, b'') == token for d in replies):
                 raise RuntimeError('ping echo mismatch')
-            print('Bridge protobuf echo verified')
+            print('Flipper protobuf echo verified')
         elif args.action == 'inspect':
             verify_layout(rpc)
             print('Tested en-UK layout and USB interface verified')
@@ -113,13 +119,15 @@ def main(argv=None):
                     rpc.request(23, integer(1, 4) + integer(2, typ))
                 print('Start input acknowledged. Observe the target editor; RPC does not prove typing completed.')
                 print('Close Bad KB before removing the remote script.')
-    finally:
-        rpc.close()
+    return with_connection(args, operation, RPC)
 
 
 if __name__ == '__main__':
     try:
         main()
+    except BluetoothError as error:
+        print(str(error), file=sys.stderr)
+        sys.exit(1)
     except (OSError, ValueError, RuntimeError, EOFError, IndexError, KeyError):
         # Transport exceptions can include payloads; keep file content out of logs.
         print('Operation failed. No automatic retry. Check inputs, bridge and layout. If typing may have started, stop Bad KB and inspect the target editor before retrying.', file=sys.stderr)

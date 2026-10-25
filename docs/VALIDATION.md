@@ -1,6 +1,6 @@
 # Validation
 
-On 2026-10-24, all **22 tests** passed locally with Python 3.14.
+On 2026-10-24, all **31 tests** passed locally with Python 3.14.
 
 The generic toolkit is checked with synthetic RPC responses, a fragmented
 loopback TCP server, and physical-key replay against an editor model. These tests
@@ -10,7 +10,7 @@ permissions, malformed protobuf, and remote path containment.
 
 The documented fresh-checkout workflow uses caller-supplied printable-ASCII BASIC
 with a default character timing of 50 ms. It requires Python 3.10+ and no third-party
-Python packages. CI is configured for Python 3.10 and 3.14 on Linux and macOS;
+Python packages for Wi-Fi/offline use. Bluetooth adds optional Bleak. CI is configured for Python 3.10 and 3.14 on Linux and macOS;
 configured jobs are not evidence that every platform has passed remotely.
 
 The retained ESP32-S2 firmware previously built with ESP-IDF v5.4.2 using isolated
@@ -39,3 +39,13 @@ Both bootstrap variants in the pinned mac2jb checkout pass the general compiler'
 physical-key/editor replay. The new target adapter has not been validated on
 hardware. Bootstrap preparation does not include a runtime or establish that a
 console can execute the supplied source.
+
+## Bluetooth LE transport
+
+Nine additional BLE tests cover credit-window exhaustion/refill, MTU fragmentation,
+fragmented protobuf replies, explicit/ambiguous device selection, dependency errors,
+connection cleanup, bounded buffering, no retry after a lost start acknowledgment,
+and target-latch retention on a BLE failure. All 31 tests pass on Python 3.14 and
+in an isolated Python 3.12 environment with Bleak 3.0.2 installed. The Bleak client
+and scanner imports succeed on macOS. No scan, pairing or hardware access occurred.
+Physical Bluetooth transfer and USB keyboard operation remain unverified.

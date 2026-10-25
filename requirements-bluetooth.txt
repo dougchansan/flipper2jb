@@ -1,0 +1,2 @@
+# Optional. Wi-Fi transport and offline compilation do not need this package.
+bleak>=1.0,<4

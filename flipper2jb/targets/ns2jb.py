@@ -9,10 +9,12 @@ import struct
 import sys
 import time
 import uuid
+from ..ble import BluetoothError
 from ..__main__ import private_write, verify_layout
 from ..keyboard import compile_bas, LAYOUT
 from ..rpc import RPC, blob, integer
 from ..transfer import upload
+from ..transports import add_options, with_connection
 
 MARKER = b'REM FLIPPER2JB TARGET NS2JB; fresh session only\n'
 
@@ -96,8 +98,7 @@ def reset():
 
 def main(argv=None):
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument('--host', default=os.environ.get('FLIPPER_WIFI_HOST', '192.168.4.1'))
-    parser.add_argument('--port', type=int, default=int(os.environ.get('FLIPPER_WIFI_PORT', '8080')))
+    add_options(parser)
     sub = parser.add_subparsers(dest='action', required=True)
     p = sub.add_parser('bootstrap', help='compile caller-supplied bootstrap.bas; offline')
     p.add_argument('source', type=Path); p.add_argument('-o', '--output', type=Path, required=True)
@@ -130,8 +131,7 @@ def main(argv=None):
     if args.action == 'session':
         private_write(args.output, data)
         print('Private one-use script created for review. Use target start for guarded delivery.'); return
-    rpc = RPC(args.host, args.port)
-    try:
+    def operation(rpc):
         verify_layout(rpc)
         if active_command(args.active_file) != (pid, command):
             raise ValueError('active host changed')
@@ -148,11 +148,15 @@ def main(argv=None):
         print('Fresh script readback and start input acknowledged:', remote)
         print(f'Estimated typing interval: {seconds:.1f} seconds. Only the host can confirm authentication.')
         print('Close Bad KB before deleting the script. Never replay it. No automatic retry.')
-    finally: rpc.close()
+    return with_connection(args, operation, RPC)
 
 
 if __name__ == '__main__':
     try: main()
+    except BluetoothError as error:
+        print(str(error), file=sys.stderr)
+        print('If delivery was attempted, stop Bad KB and restart the console before another session.', file=sys.stderr)
+        sys.exit(1)
     except (OSError, ValueError, RuntimeError, EOFError, KeyError, IndexError):
         print('Target operation failed; no automatic retry. If delivery was attempted, stop Bad KB and restart the console before another session.', file=sys.stderr)
         sys.exit(1)

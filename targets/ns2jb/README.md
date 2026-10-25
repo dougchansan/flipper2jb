@@ -1,13 +1,21 @@
 # Optional SmileBASIC / ns2jb target
 
 This adapter provides the bootstrap-text and post-bootstrap keyboard workflow
-seen in [cpypwn/mac2jb](https://github.com/cpypwn/mac2jb), using a Flipper and its
-Wi-Fi dev board instead of Mac USB gadget drivers. It does not install a Mac
+seen in [cpypwn/mac2jb](https://github.com/cpypwn/mac2jb), using a Flipper over
+Bluetooth LE or its Wi-Fi dev board instead of Mac USB gadget drivers. It does not install a Mac
 kernel extension or require a change to macOS security settings.
 
 The general tools remain under `python3 -m flipper2jb`. Target commands are under
 `python3 -m flipper2jb.targets.ns2jb`. Importing either module performs no device
 I/O. Target operations are optional and not run by the test/setup instructions.
+
+## Connection
+
+Use `FLIPPER_TRANSPORT=ble` and `FLIPPER_BLE_DEVICE` from the
+[Bluetooth guide](../../docs/BLUETOOTH.md) to operate without a Wi-Fi board.
+The target accepts the same `--transport ble --ble-device IDENTIFIER` global
+options as the general CLI, placed before `start`. Wi-Fi remains the default.
+Transport selection does not change the 50 ms typing default or target latch.
 
 ## Prepare bootstrap text
 

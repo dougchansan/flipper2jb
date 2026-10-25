@@ -50,3 +50,11 @@ in [cpypwn/mac2jb](https://github.com/cpypwn/mac2jb), inspected at
 [third_party/mac2jb/LICENSE](../third_party/mac2jb/LICENSE). The target uses this
 project's en-UK Flipper transport rather than the reference project's US-layout
 Mac USB gadget sender. No native driver, GUI, bootstrap source or runtime is copied.
+
+## Bluetooth serial transport
+
+The optional BLE implementation follows the Flipper firmware's public serial GATT
+UUIDs, authenticated characteristic permissions, and receive-window protocol.
+Sources and Bleak API references are linked in [Bluetooth setup](BLUETOOTH.md).
+The protobuf encoder and storage protocol are shared with Wi-Fi; no BLE-specific
+firmware or third-party client source is bundled.

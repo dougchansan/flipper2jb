@@ -36,6 +36,10 @@ def first(d,k,default=0):return d.get(k,[default])[0]
 class RPC:
  def __init__(self, host='192.168.4.1', port=8080):
   self.s=socket.create_connection((host,port),5);self.s.settimeout(8);self.ident=random.randint(1000,1000000);self.screen=None
+ @classmethod
+ def from_stream(cls,stream):
+  rpc=cls.__new__(cls);rpc.s=stream;rpc.ident=random.randint(1000,1000000);rpc.screen=None
+  return rpc
  def exact(self,n):
   b=b''
   while len(b)<n:

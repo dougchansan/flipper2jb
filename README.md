@@ -1,21 +1,22 @@
 # Flipper2JB
 
-Flipper Zero and ESP32-S2 Wi-Fi dev board tools for preparing keyboard scripts,
-transferring files, and entering BASIC source into a USB-connected text editor.
+Flipper Zero tools for preparing keyboard scripts, transferring files over
+Bluetooth LE or an optional Wi-Fi dev board, and entering BASIC source into a
+USB-connected text editor.
 
 ```text
-Computer ── Wi-Fi / TCP ── ESP32-S2 board ── Expansion UART ── Flipper Zero
-                                                                   │
-                                                              USB keyboard
-                                                                   │
-                                                             Target editor
+Computer ── Bluetooth LE ── Flipper Zero ── USB keyboard ── Target editor
 ```
+
+Bluetooth needs no Wi-Fi board. The existing ESP32-S2 Wi-Fi/Expansion UART bridge
+is also supported.
 
 The toolkit includes a BASIC-to-Bad-KB converter, verified Wi-Fi uploads, remote
 script start, a USB serial upload fallback, and Flipper display capture. An
 optional [SmileBASIC/ns2jb target](targets/ns2jb/README.md) adds bootstrap text
 preparation and fresh host-command delivery, following the mac2jb workflow. Python
-**3.10+** and its standard library are sufficient for the host tools.
+**3.10+** is required. Wi-Fi and offline compilation use the standard library;
+Bluetooth adds the optional Bleak dependency.
 
 ## Start with a fresh checkout
 
@@ -38,8 +39,8 @@ enters text without automatically executing or saving the BASIC program.
 
 The remote-start workflow uses Momentum **Bad KB**, **USB** keyboard mode, the
 included **en-UK** layout, and **Caps Lock off**. Stock firmware's Bad USB app is
-not currently supported by the launch command. The dev board stays attached to
-the Flipper; the Flipper's USB connects to the target device.
+not currently supported by the launch command. The Flipper's USB connects to
+the target device; the Wi-Fi board is only needed for Wi-Fi transport.
 
 The generated sequence assumes an empty editor with the cursor at the beginning.
 After each Enter, it uses Home, Shift+End, Space and Backspace to clear inherited
@@ -51,15 +52,39 @@ Default character hold/release and Shift settling are **50 ms**; navigation uses
 **100 ms**. No timing option is needed. The manifest reports the estimated typing
 duration.
 
-## Connect and upload
+## Bluetooth connection (no Wi-Fi board)
+
+Install the optional Bluetooth dependency, enable Bluetooth on the Flipper, and
+close the mobile app or other Bluetooth connections:
+
+```sh
+python3 -m venv .venv
+source .venv/bin/activate
+python -m pip install -r requirements-bluetooth.txt
+python -m flipper2jb ble-scan
+export FLIPPER_TRANSPORT=ble
+export FLIPPER_BLE_DEVICE="PASTE-SCAN-IDENTIFIER"
+python -m flipper2jb ping
+python -m flipper2jb inspect
+python -m flipper2jb upload dist/bootstrap.txt
+```
+
+Use the identifier from the scan (an OS UUID on macOS). Confirm the Flipper's
+pairing code when prompted and allow Bluetooth access for your terminal.
+Subsequent commands use BLE with these environment variables set. The Flipper
+remains a **USB** keyboard to the target. See the [Bluetooth guide](docs/BLUETOOTH.md)
+for explicit flags, pairing, target scripts and verification limits. Physical BLE
+operation has not yet been verified on this hardware.
+
+## Wi-Fi connection (optional board)
 
 Connect the computer to the board's existing private Wi-Fi AP. A working board
 needs no firmware change. The default endpoint is `192.168.4.1:8080`:
 
 ```sh
-python3 -m flipper2jb ping
-python3 -m flipper2jb inspect
-python3 -m flipper2jb upload dist/bootstrap.txt
+python3 -m flipper2jb --transport wifi ping
+python3 -m flipper2jb --transport wifi inspect
+python3 -m flipper2jb --transport wifi upload dist/bootstrap.txt
 ```
 
 `ping` checks a protobuf echo. `inspect` verifies the exact included keymap bytes
@@ -74,7 +99,8 @@ python3 -m flipper2jb upload dist/bootstrap.txt --remote /ext/badusb/Bootstrap.t
 ```
 
 An existing file at an explicit destination may be replaced. Omit `--remote` to
-get a unique filename. Wi-Fi uploads use 512-byte protobuf storage records.
+get a unique filename. Both transports use the same 512-byte protobuf storage
+records; BLE additionally splits each frame into GATT-sized writes.
 
 ## Send the script
 
@@ -126,7 +152,9 @@ Global connection options go before the subcommand:
 python3 -m flipper2jb --host 192.168.4.1 --port 8080 inspect
 ```
 
-`FLIPPER_WIFI_HOST` and `FLIPPER_WIFI_PORT` are also supported.
+`FLIPPER_WIFI_HOST` and `FLIPPER_WIFI_PORT` configure Wi-Fi.
+`FLIPPER_TRANSPORT` selects `wifi` (default) or `ble`; `FLIPPER_BLE_DEVICE` selects
+the Bluetooth device. Explicit flags override these environment values.
 
 ## Wi-Fi board firmware
 
