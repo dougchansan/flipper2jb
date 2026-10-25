@@ -1,0 +1,21 @@
+{
+  "firmware/LICENSE": "bd59cbc29cbd285d54889d8063980ab2140b4a07e45e3a16aa62a87e1a63e271",
+  "firmware/tcp_uart_bridge/CMakeLists.txt": "8209c9cbccd54fc76e2268af448807689e3087c6d8caa8da00dc3b341fd61c5a",
+  "firmware/tcp_uart_bridge/main/CMakeLists.txt": "e2d1633fb46a8758084c7871c072368852ae0fa629f84653f99815e2ea8778ff",
+  "firmware/tcp_uart_bridge/main/Kconfig.projbuild": "1d1489f07f73db58ddf42b385ec0f8f2e5a14f32216936776183b89e56c585ad",
+  "firmware/tcp_uart_bridge/main/bridge_stats.c": "9d7268a1f7ebf80511d92d559a72c0d7017cb4dbb40229c99b34fc1a22d775bb",
+  "firmware/tcp_uart_bridge/main/bridge_stats.h": "4c07f56f067770eec61b9295582fb9063141180a88272420e23485502eb1f768",
+  "firmware/tcp_uart_bridge/main/expansion_module.c": "dc8705d71c5f972fcb5fbeeb003758538bec5aaeb1e624edc0242027acd305bc",
+  "firmware/tcp_uart_bridge/main/expansion_module.h": "31c84b29604feae8296a3dbfa93df837ef57aecd23057c6b8cb8edcec810fc2b",
+  "firmware/tcp_uart_bridge/main/http_api.c": "0ca00f00de90ffa37ec42be9edd9f0f2d23a77ebf389a3489ffc317bcaa4a9bf",
+  "firmware/tcp_uart_bridge/main/http_api.h": "e956c4975b38f7fe6dc4de4e3dfeb5c3c980bda5e2cb1053d6f2b6d60d20e375",
+  "firmware/tcp_uart_bridge/main/main.c": "9f65b2cbe64feacddce9e8c518e3f708abb88f6bffa5b94f36b0d67d2149756b",
+  "firmware/tcp_uart_bridge/main/tcp_server.c": "f62cb97453ad394065a43b283ec8d645579a3e02054c2dceb1aa4e94e72bfea6",
+  "firmware/tcp_uart_bridge/main/tcp_server.h": "5c33f14f3a58e03654fb4b19ccc2a47784b5b8305ef9b71ecdd69a61edfe0d25",
+  "firmware/tcp_uart_bridge/main/uart_bridge.c": "318aca2a6f62ddcb4c43b37083d85e042b94d6b7ff53d70d744b84defc11d5c2",
+  "firmware/tcp_uart_bridge/main/uart_bridge.h": "792257662cb1f6ec5f37d460547a3dbb76a42a5bfe7cfbc11e72e7b70200f437",
+  "firmware/tcp_uart_bridge/main/wifi_manager.c": "7ad7aaaf446698572a522026e09fd0f5bf77938e4782989a415e8b80790c4087",
+  "firmware/tcp_uart_bridge/main/wifi_manager.h": "b70504bd8f038a04b7e471570e8c58c878e392f4957a1613287ecb880656dcc8",
+  "firmware/tcp_uart_bridge/partitions.csv": "206f7fe07f3dd252bec24800dbdaee20b8ed36f2cba16ed4b471f6f92eed366e",
+  "firmware/tcp_uart_bridge/sdkconfig.defaults": "672741732490f918944e642b4a1a57cf3e440367c22cefd7355e8dba62dcf5b9"
+}
