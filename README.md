@@ -42,6 +42,15 @@ included **en-UK** layout, and **Caps Lock off**. Stock firmware's Bad USB app i
 not currently supported by the launch command. The Flipper's USB connects to
 the target device; the Wi-Fi board is only needed for Wi-Fi transport.
 
+**Not on Momentum?** The launch command here drives Momentum's Bad KB. If you're
+on stock (or other) firmware, [ns2-flipper-typer](https://github.com/wowilookgood/ns2-flipper-typer)
+does the same job from the Flipper's **JavaScript Bad USB** module (needs the JS
+SDK 0.1+ / Scripts app, so Shift is held reliably): it types the ns2jb
+`bootstrap.bas` and the per-run Direct-mode commands into SmileBASIC. Use the same
+console setup — USB keyboard **English (US)**, SmileBASIC **CapsLock off**, and
+restart SmileBASIC. It's tested on Unleashed; recent official and Momentum are
+expected to work.
+
 The generated sequence assumes an empty editor with the cursor at the beginning.
 After each Enter, it uses Home, Shift+End, Space and Backspace to clear inherited
 auto-indentation. The target must support these shortcuts as expected.
